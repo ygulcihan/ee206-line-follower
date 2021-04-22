@@ -156,7 +156,7 @@ void slightRight()
 
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
-  analogWrite(enableR, 180);
+  analogWrite(enableR, 170);
 }
 
 void hardLeft()
@@ -184,6 +184,16 @@ void hardRight()
   digitalWrite(inputR2, LOW);
   analogWrite(enableR, 0);
 }
+void reverse()
+{
+  digitalWrite(inputL1, LOW);
+  digitalWrite(inputL2, HIGH);
+  analogWrite(enableL, 190);
+
+  digitalWrite(inputR1, LOW);
+  digitalWrite(inputR2, HIGH);
+  analogWrite(enableR, 255);
+}
 
 void lineFollow()
 {
@@ -191,6 +201,26 @@ void lineFollow()
  {
    stop();
  } 
+  // L2 is on the line //
+ else if (L2 == lc)
+ {
+   stop();
+   delay(1);
+   reverse();
+   delay(30);
+   hardLeft();
+   Serial.println("hardLeft");
+ }
+  // R2 is on the line //
+ else if (R2 == lc)
+ {
+   stop();
+   delay(1);
+   reverse();
+   delay(30);
+   hardRight();
+   Serial.println("hardRight");
+ }
   // Only M is on the line //
  else if (M == lc && L1 == !lc && R1 == !lc)
  {
@@ -209,23 +239,23 @@ void lineFollow()
    slightRight();
    Serial.println("slightRight");
  }
-  // L2 is on the line //
- else if (L2 == lc)
- {
-   hardLeft();
-   Serial.println("hardLeft");
- }
-  // R2 is on the line //
- else if (R2 == lc)
- {
-   hardRight();
-   Serial.println("hardRight");
- }
  // Nothing is on the line //
  else if (L2 == !lc && L1 == !lc && M == !lc && R1 == !lc && R2 == !lc)
  {
    goStraight();
    Serial.println("goStraight");
+ }
+ // M & L1 is on the line //
+ else if (M == lc && L1 == lc)
+ {
+  hardLeft();
+  Serial.println("hardLeft");
+ }
+ // M & R1 is on the line //
+ else if (M == lc && R1 == lc)
+ {
+  slightRight();
+  Serial.println("slightRight");
  }
  else
  {
