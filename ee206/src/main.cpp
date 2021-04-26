@@ -101,7 +101,7 @@ void goStraight()
 {
   digitalWrite(inputL1, HIGH);
   digitalWrite(inputL2, LOW);
-  analogWrite(enableL, 190);
+  analogWrite(enableL, 250);
 
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
@@ -141,7 +141,7 @@ void slightLeft()
 {
   digitalWrite(inputL1, HIGH);
   digitalWrite(inputL2, LOW);
-  analogWrite(enableL, 15);
+  analogWrite(enableL, 55);
 
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
@@ -156,14 +156,14 @@ void slightRight()
 
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
-  analogWrite(enableR, 170);
+  analogWrite(enableR, 150);
 }
 
 void hardLeft()
 {
   digitalWrite(inputL1, LOW);
   digitalWrite(inputL2, HIGH);
-  analogWrite(enableL, 155);
+  analogWrite(enableL, 135);
   delay(6);
   digitalWrite(inputL1, LOW);
   digitalWrite(inputL2, HIGH);
@@ -188,7 +188,7 @@ void reverse()
 {
   digitalWrite(inputL1, LOW);
   digitalWrite(inputL2, HIGH);
-  analogWrite(enableL, 190);
+  analogWrite(enableL, 250);
 
   digitalWrite(inputR1, LOW);
   digitalWrite(inputR2, HIGH);
@@ -204,8 +204,6 @@ void lineFollow()
   // L2 is on the line //
  else if (L2 == lc)
  {
-   stop();
-   delay(1);
    reverse();
    delay(30);
    hardLeft();
@@ -214,8 +212,6 @@ void lineFollow()
   // R2 is on the line //
  else if (R2 == lc)
  {
-   stop();
-   delay(1);
    reverse();
    delay(30);
    hardRight();
