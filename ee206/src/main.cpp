@@ -5,27 +5,29 @@
 bool go = false;
 
 // Motor Driver //
-#define inputL1 9
-#define inputL2 10
-#define inputR1 11
-#define inputR2 8
-#define enableL 5
-#define enableR 6
+#define inputL1 5
+#define inputL2 4
+#define inputR1 2
+#define inputR2 7
+#define enableL 6
+#define enableR 3
 
 // Line Sensor //
-#define ls1 A0
-#define ls2 A1
+#define ls1 A4
+#define ls2 A3
 #define ls3 A2
-#define ls4 A3
-#define ls5 A4
+#define ls4 A1
+#define ls5 A0
 String lineColor = "white";
 bool L2, L1, M, R1, R2;
 bool lc;
 
-
 // Obst. Sensor //
-#define obstSensor 2
+#define obstSensor 0
 bool obstDetected = false;
+
+// Reverse Led //
+#define rLed 1
 
 // Function Declarations //
 void goPressed();
@@ -39,6 +41,7 @@ void slightRight();
 void hardRight();
 void systemCheck();
 void lineFollow();
+void reverse();
 
 void setup() 
 {
@@ -46,6 +49,7 @@ void setup()
 
   // Go Button //
   pinMode(goBtn, INPUT);
+  digitalWrite(goBtn, HIGH);
 
   // Motor Driver //
   pinMode(inputL1, OUTPUT);
@@ -70,12 +74,16 @@ void setup()
   // Obst. Sensor //
   pinMode(obstSensor, INPUT);
 
+  // Reverse Led //
+  pinMode(rLed, OUTPUT);
+
 }
 
 void loop() 
 {
   goPressed();
   //systemCheck();
+
 
   if(go && !obstDetected)
   { 
@@ -90,11 +98,13 @@ void loop()
   lineSensor();
   
   obstacleSensor();
+
+
 }
 
 void goPressed()
 {
-  go = digitalRead(goBtn);
+  go = !digitalRead(goBtn);
 }
 
 void goStraight()
@@ -106,6 +116,10 @@ void goStraight()
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
   analogWrite(enableR, 255);
+
+  digitalWrite(rLed, LOW);
+
+  Serial.println("goStraight");
 }
 
 void lineSensor()
@@ -135,6 +149,10 @@ void stop()
   digitalWrite(inputL2, LOW);
   digitalWrite(inputR1, LOW);
   digitalWrite(inputR2, LOW);
+
+  digitalWrite(rLed, LOW);
+
+  Serial.println("Stop");
 }
 
 void slightLeft()
@@ -146,6 +164,10 @@ void slightLeft()
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
   analogWrite(enableR, 255);
+
+  digitalWrite(rLed, LOW);
+
+  Serial.println("slightLeft");
 }
 
 void slightRight()
@@ -157,6 +179,10 @@ void slightRight()
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
   analogWrite(enableR, 170);
+
+  digitalWrite(rLed, LOW);
+
+  Serial.println("slightRight");
 }
 
 void hardLeft()
@@ -172,6 +198,11 @@ void hardLeft()
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
   analogWrite(enableR, 255);
+
+  digitalWrite(rLed, LOW);
+
+
+  Serial.println("hardLeft");
 }
 
 void hardRight()
@@ -183,6 +214,10 @@ void hardRight()
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
   analogWrite(enableR, 0);
+
+  digitalWrite(rLed, LOW);
+
+  Serial.println("hardRight");
 }
 void reverse()
 {
@@ -193,6 +228,12 @@ void reverse()
   digitalWrite(inputR1, LOW);
   digitalWrite(inputR2, HIGH);
   analogWrite(enableR, 255);
+
+  digitalWrite(rLed, HIGH);
+  delay(100);
+  digitalWrite(rLed, LOW);
+
+  Serial.println("reverse");
 }
 
 void lineFollow()
@@ -205,62 +246,55 @@ void lineFollow()
  else if (L2 == lc)
  {
    stop();
-   delay(1);
+   delay(10);
    reverse();
    delay(30);
    hardLeft();
-   Serial.println("hardLeft");
+   delay(200);
  }
   // R2 is on the line //
  else if (R2 == lc)
  {
    stop();
-   delay(1);
+   delay(10);
    reverse();
    delay(30);
    hardRight();
-   Serial.println("hardRight");
+   delay(200);
  }
   // Only M is on the line //
  else if (M == lc && L1 == !lc && R1 == !lc)
  {
    goStraight();
-   Serial.println("goStraight");
  }
   // L1 is on the line & M is not on the line //
  else if (M == !lc && L1 == lc)
  {
    slightLeft();
-   Serial.println("slightLeft");
  }
   // R1 is on the line & M is not on the line //
  else if (M == !lc && R1 == lc)
  {
    slightRight();
-   Serial.println("slightRight");
  }
  // Nothing is on the line //
  else if (L2 == !lc && L1 == !lc && M == !lc && R1 == !lc && R2 == !lc)
  {
    goStraight();
-   Serial.println("goStraight");
  }
  // M & L1 is on the line //
  else if (M == lc && L1 == lc)
  {
   hardLeft();
-  Serial.println("hardLeft");
  }
  // M & R1 is on the line //
  else if (M == lc && R1 == lc)
  {
   slightRight();
-  Serial.println("slightRight");
  }
  else
  {
    stop();
-   Serial.println("stop");
  }
  
 }
