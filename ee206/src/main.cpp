@@ -11,6 +11,7 @@ bool go = false;
 #define inputR2 7
 #define enableL 6
 #define enableR 3
+unsigned int i = 0;
 
 // Line Sensor //
 #define ls1 A4
@@ -31,19 +32,22 @@ bool obstDetected = false;
 
 // Function Declarations //
 void goPressed();
-void goStraight();
+void goStraight(unsigned int speed);
 void lineSensor();
 void obstacleSensor();
 void stop();
-void slightLeft();
-void hardLeft();
-void slightRight();
-void hardRight();
+void slightLeft(unsigned int speed);
+void slightLeftISR();
+void hardLeft(unsigned int speed);
+void hardLeftISR();
+void slightRight(unsigned int speed);
+void slightRightISR();
+void hardRight(unsigned int speed);
+void hardRightISR();
 void systemCheck();
 void lineFollow();
 void reverse();
-
-void setup() 
+void setup()
 {
   Serial.begin(9600);
 
@@ -67,9 +71,13 @@ void setup()
   pinMode(A4, INPUT);
 
   if (lineColor == "black" || lineColor == "Black" || lineColor == "BLACK")
-  {  lc = 0; }
+  {
+    lc = 0;
+  }
   else if (lineColor == "white" || lineColor == "White" || lineColor == "WHITE")
-  {  lc = 1; }
+  {
+    lc = 1;
+  }
 
   // Obst. Sensor //
   pinMode(obstSensor, INPUT);
@@ -77,16 +85,19 @@ void setup()
   // Reverse Led //
   pinMode(rLed, OUTPUT);
 
+  attachInterrupt(digitalPinToInterrupt(ls4), slightRightISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(ls2), slightLeftISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(ls1), hardLeftISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(ls5), hardRightISR, RISING);
 }
 
-void loop() 
+void loop()
 {
   goPressed();
   //systemCheck();
 
-
-  if(go && !obstDetected)
-  { 
+  if (go && !obstDetected)
+  {
     lineFollow();
   }
 
@@ -96,10 +107,8 @@ void loop()
   }
 
   lineSensor();
-  
+
   obstacleSensor();
-
-
 }
 
 void goPressed()
@@ -107,15 +116,15 @@ void goPressed()
   go = !digitalRead(goBtn);
 }
 
-void goStraight()
+void goStraight(unsigned int speed)
 {
   digitalWrite(inputL1, HIGH);
   digitalWrite(inputL2, LOW);
-  analogWrite(enableL, 190);
+  analogWrite(enableL, speed);
 
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
-  analogWrite(enableR, 255);
+  analogWrite(enableR, speed);
 
   digitalWrite(rLed, LOW);
 
@@ -134,11 +143,11 @@ void lineSensor()
 void obstacleSensor()
 {
   obstDetected = !digitalRead(obstSensor);
-  
-  if(obstDetected)
+
+  if (obstDetected)
   {
     stop();
-  }  
+  }
 }
 
 void stop()
@@ -155,41 +164,63 @@ void stop()
   Serial.println("Stop");
 }
 
-void slightLeft()
+void slightLeft(unsigned int speed)
 {
   digitalWrite(inputL1, HIGH);
   digitalWrite(inputL2, LOW);
-  analogWrite(enableL, 15);
+  analogWrite(enableL, 80);
 
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
-  analogWrite(enableR, 255);
+  analogWrite(enableR, speed);
 
   digitalWrite(rLed, LOW);
 
   Serial.println("slightLeft");
 }
 
-void slightRight()
+void slightLeftISR()
 {
   digitalWrite(inputL1, HIGH);
   digitalWrite(inputL2, LOW);
-  analogWrite(enableL, 255);
+  analogWrite(enableL, 80);
 
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
-  analogWrite(enableR, 170);
+  analogWrite(enableR, 250);
+}
+
+void slightRight(unsigned int speed)
+{
+  digitalWrite(inputL1, HIGH);
+  digitalWrite(inputL2, LOW);
+  analogWrite(enableL, speed);
+
+  digitalWrite(inputR1, HIGH);
+  digitalWrite(inputR2, LOW);
+  analogWrite(enableR, 85);
 
   digitalWrite(rLed, LOW);
 
   Serial.println("slightRight");
 }
 
-void hardLeft()
+void slightRightISR()
+{
+  digitalWrite(inputL1, HIGH);
+  digitalWrite(inputL2, LOW);
+  analogWrite(enableL, 250);
+
+  digitalWrite(inputR1, HIGH);
+  digitalWrite(inputR2, LOW);
+  analogWrite(enableR, 85);
+}
+
+void hardLeft(unsigned int speed)
 {
   digitalWrite(inputL1, LOW);
   digitalWrite(inputL2, HIGH);
-  analogWrite(enableL, 155);
+  analogWrite(enableL, 145);
   delay(6);
   digitalWrite(inputL1, LOW);
   digitalWrite(inputL2, HIGH);
@@ -197,33 +228,58 @@ void hardLeft()
 
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
-  analogWrite(enableR, 255);
+  analogWrite(enableR, speed);
 
   digitalWrite(rLed, LOW);
-
 
   Serial.println("hardLeft");
 }
 
-void hardRight()
+void hardLeftISR()
 {
-  digitalWrite(inputL1, HIGH);
-  digitalWrite(inputL2, LOW);
-  analogWrite(enableL, 255);
+  digitalWrite(inputL1, LOW);
+  digitalWrite(inputL2, HIGH);
+  analogWrite(enableL, 105);
 
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
-  analogWrite(enableR, 0);
+  analogWrite(enableR, 160);
+}
+
+void hardRight(unsigned int speed)
+{
+  digitalWrite(inputL1, HIGH);
+  digitalWrite(inputL2, LOW);
+  analogWrite(enableL, speed);
+
+  digitalWrite(inputR1, LOW);
+  digitalWrite(inputR2, HIGH);
+  analogWrite(enableR, 145);
+  delay(6);
+  digitalWrite(inputR1, LOW);
+  digitalWrite(inputR2, HIGH);
+  analogWrite(enableR, 45);
 
   digitalWrite(rLed, LOW);
 
   Serial.println("hardRight");
 }
+
+void hardRightISR()
+{
+  digitalWrite(inputL1, HIGH);
+  digitalWrite(inputL2, LOW);
+  analogWrite(enableL, 160);
+
+  digitalWrite(inputR1, LOW);
+  digitalWrite(inputR2, HIGH);
+  analogWrite(enableR, 105);
+}
 void reverse()
 {
   digitalWrite(inputL1, LOW);
   digitalWrite(inputL2, HIGH);
-  analogWrite(enableL, 190);
+  analogWrite(enableL, 255);
 
   digitalWrite(inputR1, LOW);
   digitalWrite(inputR2, HIGH);
@@ -238,65 +294,72 @@ void reverse()
 
 void lineFollow()
 {
- if(!go)
- {
-   stop();
- } 
+  if (!go)
+  {
+    stop();
+  }
+
+  else if (M == lc && L1 == lc && L2 == lc)
+  {
+    reverse();
+    delay(30);
+    hardLeft(230);
+    delay(70);
+  }
+  else if (M == lc && R1 == lc && R2 == lc)
+  {
+    reverse();
+    delay(30);
+    hardRight(230);
+    delay(70);
+  }
+
   // L2 is on the line //
- else if (L2 == lc)
- {
-   stop();
-   delay(10);
-   reverse();
-   delay(30);
-   hardLeft();
-   delay(200);
- }
+  else if (L2 == lc)
+  {
+    hardLeft(180);
+  }
   // R2 is on the line //
- else if (R2 == lc)
- {
-   stop();
-   delay(10);
-   reverse();
-   delay(30);
-   hardRight();
-   delay(200);
- }
-  // Only M is on the line //
- else if (M == lc && L1 == !lc && R1 == !lc)
- {
-   goStraight();
- }
+  else if (R2 == lc)
+  {
+    hardRight(180);
+  }
+
   // L1 is on the line & M is not on the line //
- else if (M == !lc && L1 == lc)
- {
-   slightLeft();
- }
+  else if (M == !lc && L1 == lc)
+  {
+    slightLeft(200);
+  }
   // R1 is on the line & M is not on the line //
- else if (M == !lc && R1 == lc)
- {
-   slightRight();
- }
- // Nothing is on the line //
- else if (L2 == !lc && L1 == !lc && M == !lc && R1 == !lc && R2 == !lc)
- {
-   goStraight();
- }
- // M & L1 is on the line //
- else if (M == lc && L1 == lc)
- {
-  hardLeft();
- }
- // M & R1 is on the line //
- else if (M == lc && R1 == lc)
- {
-  slightRight();
- }
- else
- {
-   stop();
- }
- 
+  else if (M == !lc && R1 == lc)
+  {
+    slightRight(200);
+  }
+
+  // L2 & L1 is on the line //
+  else if (L2 == lc && L1 == lc)
+  {
+    hardLeft(160);
+  }
+  // R2 & R1 is on the line //
+  else if (R2 == lc && R1 == lc)
+  {
+    hardRight(160);
+  }
+  // Only M is on the line //
+  else if (M == lc && L1 == !lc && R1 == !lc)
+  {
+    goStraight(195);
+  }
+  // Nothing is on the line //
+  else if (L2 == !lc && L1 == !lc && M == !lc && R1 == !lc && R2 == !lc)
+  {
+    goStraight(165);
+  }
+  else
+  {
+    stop();
+  }
 }
 
 void systemCheck()
