@@ -12,6 +12,7 @@ bool go = false;
 #define enableL 6
 #define enableR 3
 unsigned int i = 0;
+bool ignore = false;
 
 // Line Sensor //
 #define ls1 A4
@@ -127,8 +128,6 @@ void goStraight(unsigned int speed)
   analogWrite(enableR, speed);
 
   digitalWrite(rLed, LOW);
-
-  Serial.println("goStraight");
 }
 
 void lineSensor()
@@ -160,8 +159,6 @@ void stop()
   digitalWrite(inputR2, LOW);
 
   digitalWrite(rLed, LOW);
-
-  Serial.println("Stop");
 }
 
 void slightLeft(unsigned int speed)
@@ -173,10 +170,6 @@ void slightLeft(unsigned int speed)
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
   analogWrite(enableR, speed);
-
-  digitalWrite(rLed, LOW);
-
-  Serial.println("slightLeft");
 }
 
 void slightLeftISR()
@@ -192,6 +185,14 @@ void slightLeftISR()
 
 void slightRight(unsigned int speed)
 {
+  if(ignore)
+  {
+    ignore = false;
+    return;
+  }
+
+  else
+{
   digitalWrite(inputL1, HIGH);
   digitalWrite(inputL2, LOW);
   analogWrite(enableL, speed);
@@ -199,10 +200,7 @@ void slightRight(unsigned int speed)
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
   analogWrite(enableR, 85);
-
-  digitalWrite(rLed, LOW);
-
-  Serial.println("slightRight");
+}
 }
 
 void slightRightISR()
@@ -229,10 +227,6 @@ void hardLeft(unsigned int speed)
   digitalWrite(inputR1, HIGH);
   digitalWrite(inputR2, LOW);
   analogWrite(enableR, speed);
-
-  digitalWrite(rLed, LOW);
-
-  Serial.println("hardLeft");
 }
 
 void hardLeftISR()
@@ -259,10 +253,6 @@ void hardRight(unsigned int speed)
   digitalWrite(inputR1, LOW);
   digitalWrite(inputR2, HIGH);
   analogWrite(enableR, 45);
-
-  digitalWrite(rLed, LOW);
-
-  Serial.println("hardRight");
 }
 
 void hardRightISR()
@@ -284,12 +274,6 @@ void reverse()
   digitalWrite(inputR1, LOW);
   digitalWrite(inputR2, HIGH);
   analogWrite(enableR, 255);
-
-  digitalWrite(rLed, HIGH);
-  delay(100);
-  digitalWrite(rLed, LOW);
-
-  Serial.println("reverse");
 }
 
 void lineFollow()
@@ -301,17 +285,28 @@ void lineFollow()
 
   else if (M == lc && L1 == lc && L2 == lc)
   {
+    ignore = true;
     reverse();
     delay(30);
-    hardLeft(230);
-    delay(70);
+    hardLeft(240);
+    delay(270);
   }
   else if (M == lc && R1 == lc && R2 == lc)
   {
     reverse();
     delay(30);
-    hardRight(230);
-    delay(70);
+    hardRight(240);
+    delay(400);
+  }
+
+  else if (M == lc && L1 == lc)
+  {
+    hardLeft(140);
+  }
+
+  else if (M == lc && R1 == lc)
+  {
+    hardRight(140);
   }
 
   // L2 is on the line //
@@ -328,33 +323,40 @@ void lineFollow()
   // L1 is on the line & M is not on the line //
   else if (M == !lc && L1 == lc)
   {
-    slightLeft(200);
+    slightLeft(210);
   }
   // R1 is on the line & M is not on the line //
   else if (M == !lc && R1 == lc)
   {
-    slightRight(200);
+    slightRight(210);
   }
 
   // L2 & L1 is on the line //
   else if (L2 == lc && L1 == lc)
   {
-    hardLeft(160);
+    ignore = true;
+    reverse();
+    delay(30);
+    hardLeft(240);
+    delay(270);
   }
   // R2 & R1 is on the line //
   else if (R2 == lc && R1 == lc)
   {
-    hardRight(160);
+    reverse();
+    delay(30);
+    hardRight(240);
+    delay(400);
   }
   // Only M is on the line //
   else if (M == lc && L1 == !lc && R1 == !lc)
   {
-    goStraight(195);
+    goStraight(175);
   }
   // Nothing is on the line //
   else if (L2 == !lc && L1 == !lc && M == !lc && R1 == !lc && R2 == !lc)
   {
-    goStraight(165);
+    goStraight(155);
   }
   else
   {
